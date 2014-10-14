@@ -42,4 +42,4 @@ Blaze is what Meteor uses a its UI and it makes a lot of magic happen. It has tw
 + Build Time Compiler
   * HTML -> HTMLJS  
 
-
+Runtime API: if your data source changes, it will be reflected/updated on the DOM.
