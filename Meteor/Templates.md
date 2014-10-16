@@ -63,6 +63,39 @@ Meteor will find your code for you so you could put your code where ever the fuc
 <template name>.html
 ```
 
+Creating dynamic HTML templates
+-------------------------------
+Meteor Blaze uses a a templating language called Spacebars which is very similar to Handlebars and Mustache. There are four major types of template tags
+1. Double-braced tags `{{...}}`
+2. Triple-brace tags `{{{...}}}`
+3. Inclusion tags `{{> ... }}`
+4. Block tages `{{#directive}} .. {{/directive}}`
 
+__Double and Triple__
+Template tags are used to generate dynamic content which are also called expressions. They are data dependent on some kind of source trhat returns a value or some logic.
+```html
+<template name="profile">
+  <li>{{name}}</li>
+  <li>{{address}}</li>
+</template>
+```
+Shit you need to know:
+1. Tempalte opening and closing tags are mandatory
+2. Make sure the template name is unique from other template names
+3. The attribute name `{{attribute_name}}` has to be unique as well
+
+__Double__
+These are use to insert strings into your HTML, and no matter what will render a string regardless of the data type.
+```html
+<template name="profile">
+  {{name}}
+</template>
+```
+```javascript
+Template.profile.helper({
+  name: function(){
+    return `<em> name </em'
+  }
+})
 
 
