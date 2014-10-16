@@ -94,7 +94,7 @@ These are use to insert strings into your HTML, and no matter what will render a
 ```javascript
 Template.profile.helper({
   name: function(){
-    return `<em> name </em'
+    return `<em> name </em>'
   }
 })
 
