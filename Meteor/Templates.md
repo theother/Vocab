@@ -42,4 +42,27 @@ Blaze is what Meteor uses a its UI and it makes a lot of magic happen. It has tw
 + Build Time Compiler
   * HTML -> HTMLJS  
 
-Runtime API: if your data source changes, it will be reflected/updated on the DOM.
+Runtime API: if your data source changes, it will be reflected/updated on the DOM. If a phone number changes in the BD the Runtime API will update what the user current view since the placeholder `{{}}` depends on the actual value stored in the DB
+
+Build Time Compiler: Compiles to HTML -> HTMLJS
+
+> A side note: Both components work seperately, so it is entirely possible to just write js that targets the API
+
+
+Organizing Template Files
+------------------------
+There are four elements to take into consideration
+1. The actual template stored in an `.html` file
+2. The JS code in the `.js` file that runs inside the client contenxt and provides functionality to the templates
+3. Your styles in the `.css` file
+4. Static resorces like pictures and such in the `\public` folder
+
+Meteor will find your code for you so you could put your code where ever the fuck you please, although , I recomend you use a folder orginzation solution.
+```html
+<template name>.js
+<template name>.html
+```
+
+
+
+
