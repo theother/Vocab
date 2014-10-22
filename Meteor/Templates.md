@@ -10,27 +10,27 @@ Tempaltes are the builfing blokes for your UI and are basically sinppets of HTML
 
 ```html
 {{#each person}}
-  <h5>{{NAME}}</h5> 
+  <h5>{{NAME}}</h5>
   <p>Phone: {{PHONE}}</p>
 {{/each}}
 ````
 
 ```html
-<ul> 
-   <li> 
-      <h5>Christina</h5> 
-      <p>Phone: 1234-567</p> 
-     </li> 
-     <li> 
-      <h5>Stephan</h5> 
-      <p>Phone: 666-999-321</p> 
-     </li> 
-     <li> 
-       <h5>Manuel</h5> 
-       <p>Phone: 987-654-321</p> 
-   </li> 
-</ul> 
-````
+<ul>
+   <li>
+      <h5>Christina</h5>
+      <p>Phone: 1234-567</p>
+     </li>
+     <li>
+      <h5>Stephan</h5>
+      <p>Phone: 666-999-321</p>
+     </li>
+     <li>
+       <h5>Manuel</h5>
+       <p>Phone: 987-654-321</p>
+   </li>
+</ul>
+```
 
 Working With Blaze
 ------------------
@@ -40,7 +40,7 @@ Blaze is what Meteor uses a its UI and it makes a lot of magic happen. It has tw
   * Observes changes
   * Udates elements
 + Build Time Compiler
-  * HTML -> HTMLJS  
+  * HTML -> HTMLJS
 
 Runtime API: if your data source changes, it will be reflected/updated on the DOM. If a phone number changes in the BD the Runtime API will update what the user current view since the placeholder `{{}}` depends on the actual value stored in the DB
 
@@ -72,7 +72,7 @@ Meteor Blaze uses a a templating language called Spacebars which is very similar
 4. Block tages `{{#directive}} .. {{/directive}}`
 
 __Double and Triple__
-Template tags are used to generate dynamic content which are also called expressions. They are data dependent on some kind of source trhat returns a value or some logic.
+Template tags are used to generate dynamic content which are also called expressions. They are data dependent on some kind of source that returns a value or some logic.
 ```html
 <template name="profile">
   <li>{{name}}</li>
@@ -94,8 +94,23 @@ These are use to insert strings into your HTML, and no matter what will render a
 ```javascript
 Template.profile.helper({
   name: function(){
-    return `<em> name </em>'
+    return "<em> Willy </em>"
   }
 })
+```
+The following code will render the following:
+```html
+<em>Willy</em>
+```
 
+__Triple-Braced Tags__
+This template tag renders its contents exactly as you pass it into the template tag. So if you took the above example the content would be rended with a emphasis.
+>__Word to the wise__: If triple braces are used to display user generated content and the data has not been check/sanitized for malicious content you will be left open to Cross-Site-Scripting attacks.
 
+Inclusion Tags (Partials)
+-------------------------
+Templates can be inported into other templates via inclusion tags and these subtemplates are also known as `partials`
+```html
+{{> anotherTemplate}}
+```
+This alows for a better break-up of information and orginization by representing only one specific item/template/task.

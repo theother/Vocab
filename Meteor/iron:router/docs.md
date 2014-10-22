@@ -285,3 +285,171 @@ Router.route('/post/:_id', {
     }
 })
 ```
+
+
+
+Hooks
+=====
+__Types__
++ `onRun`
+    * Runs the first time your controller gets called and only runs once
+    * Like mix-panale metric tracking - things you don't want to rerun
++ `onRerun`
+    * Called only if function is rerun due to a reactive data source change
++ `onBeforeAction`
+    * Gets called before the action function gets called. These hooks behave specially. IF you want to continue calling the next function you must call `this.next()`. If you don't, downstream onBeforeAction hooks and your action function will not be called
++ `onAfterAction`
+    * Gets called after the action function gets called. These hooks behave normally, and you don't need to call `this.next()`
++ `onStop`
+    * Gets called right before we navigate away from this route
+
+> With anly of these hooks they can contian an array of function that you wish to call
+
+
+The following example renders the template and regions for a route only if the user is logged in.
+```javascript
+Router.onBeforeAction(function() {
+    // All properties are available in the route function
+    // are also avialable here such as this.params
+    if(Meteor.logginIn()) { //If the user is loggin in, just wait
+        //Just wait
+        return;
+    }else if(!Meteor.user) { //If user is not loged in
+        // Redirct them to the login page
+        this.redirect('Login')
+    }else{
+        // otherwise run the rest of the hooks
+        this.next()
+    }
+});
+```
+Thus if you have a route like so
+```javascript
+Router.route('/users', function (){
+    this.render('Userpage')
+});
+```
+if the user is not logged in the route function will never get called and the `Userpage` will never be rendered. Addionaly, hooks will rerun if they have a reactive data source like `Meteor.user()` and if that varibale changes the whole function will rerun.
+
+__Apply Hooks Specificaly__
+You can pass `except` or `only` option to each respective hook
+```javascript
+Router.onBeforeAction(myUserHookFunction, {
+    only: ['user']
+    // or exept: ['routeOne', 'routeTwo']
+})
+```
+The `myUserHookFunction` will only get applied to the route named `user`
+
+
+__Global Hooks__
+You can make gloabal hooks like a global login hook using the specific hooks as such.
+```javascript
+Router.onBeforeAction(function() {
+    if(Meteor.logginIn()) {
+        return;
+    }else if(!Meteor.user) {
+        this.redirect('Login')
+    }else{
+        this.next()
+    }
+}, {only: ['user.area']}); // will only run if user if clicks that route
+```
+
+__Plugins__
+Two params are passed to the `router instance` and a set of `options`
+```javascript
+Iron.Router.plugins.authorize = function(specificRouter, specificOptions){
+    specificRouter.onBeforeAction(function() {
+    if(Meteor.logginIn()) {
+        return;
+    }else if(!Meteor.user) {
+        this.redirect('Login')
+    }else{
+        this.next()
+    }
+}, options);
+}
+
+//To use you apps the plugin and your options
+
+//I want to use the `authorize` plug in only to `article.new`
+Router.plugin('authorize', {only: ['article.new']});
+```
+Furthermore, you can specify options within your route as such
+```javascript
+Iron.Router.plugins.authorize = function(specificRouter, specificOptions){
+    specificRouter.onBeforeAction(function() {
+    if(Meteor.logginIn()) {
+        return;
+    }else if(!Meteor.user) {
+        //This is our new option, that we then would pass a var to
+        this.redirect(this.lookupOptions('notAuthorizedRoute'))
+    }else{
+        this.next()
+    }
+}, options);
+}
+
+//Passing in new option
+Router.plugin('authorize', {
+    only: ['article.new'],
+    notAuthorizedRoute: 'home'
+});
+```
+
+
+Server Router
+============
+__Creating Routes__
+You can create server routes with full access to the NodeJs request and response objects. To create a server route you provide the `where: 'server'` option to the route.
+```javascript
+Router.route('/download/:file', function () {
+    // Nodejs Request object
+    var request = this.request;
+
+    // Nodejs response
+    var response = this.response;
+
+    this.response.end('file downloaded')
+}, {where: 'server'})
+```
+
+__Restful Routes__
+You can create server-side restful routes which correspond to an http verb. This is useful if you are setting up a webhook for another server to post data to.
+```javascript
+Router.route('/webhooks/stripe', { where: 'server' })
+  .get(function () {
+    // GET /webhooks/stripe
+  })
+  .post(function () {
+    // POST /webhooks/stripe
+  })
+  .put(function () {
+    // PUT /webhooks/stripe
+})
+```
+
+__404s and Client vs Server Routes__
+When you initially navigate to your Meteor application's url, the server router will see if there are any routes defined for that url, either on the server or on the client. If no routes are found, the server will send a 404 http status code to indicate no resource was found for the given url.
+
+__Server Middleware and Connect__
+YOu can attach middleware to the router on the server using the `use` method of the router. And Connect middleware just works out-of-the-box. This is becuase the `req, res, next` arguments are passed to the router handler functions like just in the Connect middleware statck. But typically we will access those properties using `this.request`, `this.response`, and `this.next` instead.
+```javascript
+if (Meteor.isServer) {
+  // assuming we've loaded a package with access to connect
+  var connect = Npm.require('connect');
+  Router.use(connect.queryParser(), {where: 'server'});
+}
+
+//You could also create your own server-side middlewate, for example, you might want to log all http requests
+
+Router.use(function logHttpRequests () {
+  var method = this.method;
+  var url = this.url;
+  console.log(method + ' ' + url);
+
+  // go on to the next handler now
+  this.next();
+}, {where: 'server'});
+```
